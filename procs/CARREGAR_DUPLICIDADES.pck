@@ -10,9 +10,9 @@ create or replace package CARREGAR_DUPLICIDADES is
 end CARREGAR_DUPLICIDADES;
 /
 create or replace package body CARREGAR_DUPLICIDADES is
-  gSYSDATE DATE;
-  v_code   number;
-  v_errm   VARCHAR2(100);
+--  gSYSDATE DATE;
+--  v_code   number;
+--  v_errm   VARCHAR2(100);
   
   /* Dominios
   Coluna tipo_movimento - tabela movimento
@@ -218,13 +218,61 @@ create or replace package body CARREGAR_DUPLICIDADES is
   END;
   
   --Inicio do processo de carga na base principal
+  PROCEDURE importar_obra IS
+    v_cd_obra_existe NUMBER;
+    --PR-61        v_cd_duplicidade_novo     NUMBER;
+    v_cd_obra NUMBER;
   
-  PROCEDURE processarimportacao IS
+    --vduplinha NUMBER;
+  
+  BEGIN
+  
+    FOR i IN (SELECT OT.CD_DUPLICIDADE,OT.CD_ECAD,OT.CD_SOCIETARIO,OT.TITULO_PRINCIPAL,OT.IS_NACIONAL,OT.IS_DERIVADA,OT.CD_AGRUPADOR,
+      OT.SOC_RESP_INFO,OT.SOC_RESP_CAD_ORIG             
+                FROM DUPLICIDADE_OBRA_TEMP OT
+               ) LOOP
+         
+      -- Verifica se ja este AGRUPADOR cadastradO com o codigo igual
+      SELECT COUNT(*)
+        INTO v_cd_obra_existe
+        FROM DUPLICIDADE_OBRA DO
+       WHERE DO.CD_ECAD = I.CD_ECAD;
+       --dbms_output.put_line('DUPLICIDADE EXISTE: '||(v_cd_duplicidade_existe));
+       IF(v_cd_obra_existe < 1)THEN
+         
+         SELECT SQ_CD_DUPLICIDADE_OBRA.NEXTVAL
+           INTO v_cd_obra
+           FROM dual;
+      
+        INSERT INTO DUPLICIDADE_OBRA
+          (CD_OBRA,
+           CD_ECAD,
+           CD_SOCIETARIO,
+           TITULO_PRINCIPAL,
+           IS_NACIONAL,
+           IS_DERIVADA,
+           CD_AGRUPADOR)
+        VALUES
+          (v_cd_obra,
+           I.CD_ECAD,
+           I.CD_SOCIETARIO,
+           I.TITULO_PRINCIPAL,
+           I.IS_NACIONAL,
+           I.IS_DERIVADA,
+           I.CD_AGRUPADOR);
+       
+       END IF;
+    END LOOP;
+ 
+  END;
+  
+  
+  PROCEDURE processarimporta IS
     v_cd_duplicidade_existe NUMBER;
     --PR-61        v_cd_duplicidade_novo     NUMBER;
     v_cd_duplicidade NUMBER;
   
-    vduplinha NUMBER;
+    --vduplinha NUMBER;
   
   BEGIN
   
