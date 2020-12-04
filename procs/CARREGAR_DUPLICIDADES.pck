@@ -217,7 +217,7 @@ create or replace package body CARREGAR_DUPLICIDADES is
     --EXECUTE IMMEDIATE 'TRUNCATE TABLE DB_DUPLICIDADE.ARQUIVO_DUPLICIDADE';
   END;
   
-  --Inicio do processo de carga na base principal
+/*  --Inicio do processo de carga na base principal
   PROCEDURE importar_obra IS
     v_cd_obra_existe NUMBER;
     --PR-61        v_cd_duplicidade_novo     NUMBER;
@@ -266,15 +266,17 @@ create or replace package body CARREGAR_DUPLICIDADES is
  
   END;
   
+ */ 
+  PROCEDURE processarimportacao IS
+  v_id_duplicidade_existe NUMBER;
+  --PR-61        v_cd_duplicidade_novo     NUMBER;
+  v_id_duplicidade NUMBER;
   
-  PROCEDURE processarimporta IS
-    v_cd_duplicidade_existe NUMBER;
-    --PR-61        v_cd_duplicidade_novo     NUMBER;
-    v_cd_duplicidade NUMBER;
-  
-    --vduplinha NUMBER;
+  --vduplinha NUMBER;
   
   BEGIN
+    
+    dbms_output.put_line('entrei na proc');
   
     FOR i IN (SELECT DT.CD_DUPLICIDADE,DT.DT_REFERENCIA,DT.MOTIVO_BLOQUEIO,DT.CD_AGRUPADOR              
                 FROM DUPLICIDADE_TEMP DT
@@ -282,34 +284,41 @@ create or replace package body CARREGAR_DUPLICIDADES is
          
       -- Verifica se ja este AGRUPADOR cadastradO com o codigo igual
       SELECT COUNT(*)
-        INTO v_cd_duplicidade_existe
+        INTO v_id_duplicidade_existe
         FROM DUPLICIDADE DUP
        WHERE DUP.CD_AGRUPADOR = I.CD_AGRUPADOR;
-       --dbms_output.put_line('DUPLICIDADE EXISTE: '||(v_cd_duplicidade_existe));
-       IF(v_cd_duplicidade_existe < 1)THEN
+       --dbms_output.put_line('DUPLICIDADE EXISTE: '||(v_id_duplicidade_existe));
+       IF(v_id_duplicidade_existe < 1)THEN
          
-         SELECT SQ_CD_DUPLICIDADE.NEXTVAL
-           INTO v_cd_duplicidade
+         SELECT SQ_ID_DUPLICIDADE.NEXTVAL
+           INTO v_id_duplicidade
            FROM dual;
       
         INSERT INTO DUPLICIDADE
-          (CD_DUPLICIDADE_ABRAMUS,
+          (ID_DUPLICIDADE,
            CD_DUPLICIDADE_ECAD,
            DT_REFERENCIA_ECAD,
            MOTIVO_BLOQUEIO,
-           CD_AGRUPADOR
+           CD_AGRUPADOR,
+           IDC_STATUS_DUPLICIDADE,
+           CD_OBRA_DE_ECAD,
+           CD_OBRA_PARA_ECAD
            )
         VALUES
           (
-           v_cd_duplicidade,
+           v_id_duplicidade,
            I.CD_DUPLICIDADE,
            I.DT_REFERENCIA,
            I.MOTIVO_BLOQUEIO,
-           I.CD_AGRUPADOR);
+           I.CD_AGRUPADOR,
+           'A',
+           NULL,
+           NULL);
        
-       END IF;
+        END IF;
     END LOOP;
- 
+    COMMIT;
+     
   END;
 
 end CARREGAR_DUPLICIDADES;
