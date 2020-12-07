@@ -217,58 +217,60 @@ create or replace package body CARREGAR_DUPLICIDADES is
     --EXECUTE IMMEDIATE 'TRUNCATE TABLE DB_DUPLICIDADE.ARQUIVO_DUPLICIDADE';
   END;
   
-/*  --Inicio do processo de carga na base principal
-  PROCEDURE importar_obra IS
+  -- Carregar OBRAS
+  PROCEDURE importarobras IS
     v_cd_obra_existe NUMBER;
-    --PR-61        v_cd_duplicidade_novo     NUMBER;
-    v_cd_obra NUMBER;
-  
-    --vduplinha NUMBER;
+    v_id_obra NUMBER;
   
   BEGIN
   
-    FOR i IN (SELECT OT.CD_DUPLICIDADE,OT.CD_ECAD,OT.CD_SOCIETARIO,OT.TITULO_PRINCIPAL,OT.IS_NACIONAL,OT.IS_DERIVADA,OT.CD_AGRUPADOR,
-      OT.SOC_RESP_INFO,OT.SOC_RESP_CAD_ORIG             
+    FOR i IN (SELECT  CD_ECAD, CD_SOCIETARIO, TITULO_PRINCIPAL, IS_NACIONAL, IS_DERIVADA
                 FROM DUPLICIDADE_OBRA_TEMP OT
-               ) LOOP
+              ) LOOP
          
-      -- Verifica se ja este AGRUPADOR cadastradO com o codigo igual
+      -- Verifica se a OBRA ja existe na tabela
       SELECT COUNT(*)
         INTO v_cd_obra_existe
         FROM DUPLICIDADE_OBRA DO
-       WHERE DO.CD_ECAD = I.CD_ECAD;
-       --dbms_output.put_line('DUPLICIDADE EXISTE: '||(v_cd_duplicidade_existe));
+       WHERE DO.CD_OBRA_ECAD = I.CD_ECAD;
+       
        IF(v_cd_obra_existe < 1)THEN
          
-         SELECT SQ_CD_DUPLICIDADE_OBRA.NEXTVAL
-           INTO v_cd_obra
+         SELECT SQ_ID_DUPLICIDADE_OBRA.NEXTVAL
+           INTO v_id_obra
            FROM dual;
       
         INSERT INTO DUPLICIDADE_OBRA
-          (CD_OBRA,
-           CD_ECAD,
+          (ID_OBRA,
+           CD_OBRA_ECAD,
            CD_SOCIETARIO,
            TITULO_PRINCIPAL,
            IS_NACIONAL,
-           IS_DERIVADA,
-           CD_AGRUPADOR)
+           IS_DERIVADA)
         VALUES
-          (v_cd_obra,
+          (v_id_obra,
            I.CD_ECAD,
            I.CD_SOCIETARIO,
            I.TITULO_PRINCIPAL,
            I.IS_NACIONAL,
-           I.IS_DERIVADA,
-           I.CD_AGRUPADOR);
+           I.IS_DERIVADA);
        
+       ELSE
+         UPDATE DUPLICIDADE_OBRA
+            SET CD_SOCIETARIO = I.CD_SOCIETARIO,
+                TITULO_PRINCIPAL = I.TITULO_PRINCIPAL,
+                IS_NACIONAL = I.IS_NACIONAL,
+                IS_DERIVADA = I.IS_DERIVADA
+          WHERE CD_OBRA_ECAD = I.CD_ECAD;
        END IF;
+
     END LOOP;
+    COMMIT;
  
   END;
   
- */ 
   PROCEDURE processarimportacao IS
-  v_id_duplicidade_existe NUMBER;
+  v_cd_duplicidade_existe NUMBER;
   --PR-61        v_cd_duplicidade_novo     NUMBER;
   v_id_duplicidade NUMBER;
   
@@ -276,19 +278,17 @@ create or replace package body CARREGAR_DUPLICIDADES is
   
   BEGIN
     
-    dbms_output.put_line('entrei na proc');
-  
     FOR i IN (SELECT DT.CD_DUPLICIDADE,DT.DT_REFERENCIA,DT.MOTIVO_BLOQUEIO,DT.CD_AGRUPADOR              
                 FROM DUPLICIDADE_TEMP DT
                ) LOOP
          
       -- Verifica se ja este AGRUPADOR cadastradO com o codigo igual
       SELECT COUNT(*)
-        INTO v_id_duplicidade_existe
+        INTO v_cd_duplicidade_existe
         FROM DUPLICIDADE DUP
        WHERE DUP.CD_AGRUPADOR = I.CD_AGRUPADOR;
        --dbms_output.put_line('DUPLICIDADE EXISTE: '||(v_id_duplicidade_existe));
-       IF(v_id_duplicidade_existe < 1)THEN
+       IF(v_cd_duplicidade_existe < 1)THEN
          
          SELECT SQ_ID_DUPLICIDADE.NEXTVAL
            INTO v_id_duplicidade
