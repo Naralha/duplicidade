@@ -217,6 +217,113 @@ create or replace package body CARREGAR_DUPLICIDADES is
     --EXECUTE IMMEDIATE 'TRUNCATE TABLE DB_DUPLICIDADE.ARQUIVO_DUPLICIDADE';
   END;
   
+      -- Carregar  a tabela DUPLICIDADE_OBRA
+  PROCEDURE importarduplicidade_obra IS
+    v_cd_duplicidade_obra_existe NUMBER;
+    v_id_duplicidade_obra NUMBER;
+  
+  BEGIN
+  
+    FOR i IN (SELECT D.CD_AGRUPADOR, O.CD_OBRA_ECAD, D.CD_DUPLICIDADE_ECAD, D.ID_DUPLICIDADE
+                FROM DUPLICIDADE     D
+                    ,OBRA            O
+      
+               WHERE D.CD_AGRUPADOR  = O.CD_AGRUPADOR
+              ) LOOP
+         
+      -- Verifica se a OBRA ja existe na tabela
+      SELECT COUNT(*)
+        INTO v_cd_duplicidade_obra_existe
+        FROM OBRA O
+       WHERE O.CD_OBRA_ECAD = I.CD_OBRA_ECAD;
+       
+       IF(v_cd_duplicidade_obra_existe < 1)THEN
+       
+         DELETE FROM DUPLICIDADE_OBRA
+          WHERE CD_OBRA_ECAD = I.CD_OBRA_ECAD;
+       
+       ELSE
+         
+         SELECT SQ_ID_DUPLICIDADE_OBRA.NEXTVAL
+           INTO v_id_duplicidade_obra
+           FROM dual;
+           
+           INSERT INTO DUPLICIDADE_OBRA
+           VALUES (
+           v_id_duplicidade_obra,
+           I.CD_AGRUPADOR, 
+           I.CD_OBRA_ECAD,
+           I.CD_DUPLICIDADE_ECAD,
+           I.ID_DUPLICIDADE );
+           
+       END IF;
+    END LOOP;
+    COMMIT;
+ 
+  END;
+  
+    -- Carregar  a tabela OBRA_PARTICIPANTE
+  PROCEDURE importarobra_participante IS
+    v_cd_obra_participante_existe NUMBER;
+    v_id_obra_participante NUMBER;
+  
+  BEGIN
+  
+    FOR i IN (SELECT O.ID_OBRA, OT.CD_ECAD, TT.NM_TITULAR, TT.PSEUDO_TITULAR, NULL,
+                     TT.CD_ECAD_TITULAR, TT.CD_SOCIETARIO_TITULAR, TT.CD_CATEGORIA, TT.CD_SUB_CATEGORIA,
+                     TT.DT_INICIO_CONTRATO, TT.DT_FIM_CONTRATO, TT.CD_LINK_ECAD, TT.PERCENT_PARTIC_TITULAR,
+                     CURRENT_TIMESTAMP AS DT_ULT_ATUALIZACAO,  TT.CD_AGRUPADOR
+                FROM DUPLICIDADE_OBRA_TEMP OT
+                    ,DUPLICIDADE_titular_TEMP TT
+                    ,OBRA                     O
+               WHERE OT.CD_DUPLICIDADE        = TT.CD_DUPLICIDADE
+                 AND OT.CD_ECAD               = TT.CD_ECAD_OBRA
+                 AND OT.CD_AGRUPADOR          = TT.CD_AGRUPADOR
+                 AND OT.CD_ECAD               = O.CD_OBRA_ECAD
+              ) LOOP
+         
+      -- Verifica se a OBRA ja existe na tabela
+      SELECT COUNT(*)
+        INTO v_cd_obra_participante_existe
+        FROM OBRA O
+       WHERE O.CD_OBRA_ECAD = I.CD_ECAD;
+       
+       IF(v_cd_obra_participante_existe < 1)THEN
+       
+         DELETE FROM OBRA_PARTICIPANTE
+          WHERE CD_OBRA_ECAD = I.CD_ECAD;
+       
+       ELSE
+         
+         SELECT SQ_ID_OBRA_PARTICIPANTE.NEXTVAL
+           INTO v_id_obra_participante
+           FROM dual;
+           
+           INSERT INTO OBRA_PARTICIPANTE
+           VALUES (
+           v_id_obra_participante,
+           I.ID_OBRA, 
+           I.CD_ECAD,
+           I.NM_TITULAR,
+           I.PSEUDO_TITULAR,
+           NULL,
+           I.CD_ECAD_TITULAR,
+           I.CD_SOCIETARIO_TITULAR,
+           I.CD_CATEGORIA,
+           I.CD_SUB_CATEGORIA,
+           I.DT_INICIO_CONTRATO,
+           I.DT_FIM_CONTRATO,
+           I.CD_LINK_ECAD,
+           I.PERCENT_PARTIC_TITULAR,
+           I.DT_ULT_ATUALIZACAO,
+           I.CD_AGRUPADOR );
+           
+       END IF;
+    END LOOP;
+    COMMIT;
+ 
+  END;
+     
   -- Carregar OBRAS
   PROCEDURE importarobras IS
     v_cd_obra_existe NUMBER;
@@ -224,46 +331,42 @@ create or replace package body CARREGAR_DUPLICIDADES is
   
   BEGIN
   
-    FOR i IN (SELECT  CD_ECAD, CD_SOCIETARIO, TITULO_PRINCIPAL, IS_NACIONAL, IS_DERIVADA
+    FOR i IN (SELECT  CD_ECAD, CD_SOCIETARIO, TITULO_PRINCIPAL, IS_NACIONAL, IS_DERIVADA, CD_AGRUPADOR, SOC_RESP_INFO, SOC_RESP_CAD_ORIG
                 FROM DUPLICIDADE_OBRA_TEMP OT
               ) LOOP
          
       -- Verifica se a OBRA ja existe na tabela
       SELECT COUNT(*)
         INTO v_cd_obra_existe
-        FROM DUPLICIDADE_OBRA DO
-       WHERE DO.CD_OBRA_ECAD = I.CD_ECAD;
+        FROM OBRA O
+       WHERE O.CD_OBRA_ECAD = I.CD_ECAD;
        
        IF(v_cd_obra_existe < 1)THEN
          
-         SELECT SQ_ID_DUPLICIDADE_OBRA.NEXTVAL
+         SELECT SQ_ID_OBRA.NEXTVAL
            INTO v_id_obra
            FROM dual;
       
-        INSERT INTO DUPLICIDADE_OBRA
-          (ID_OBRA,
-           CD_OBRA_ECAD,
-           CD_SOCIETARIO,
-           TITULO_PRINCIPAL,
-           IS_NACIONAL,
-           IS_DERIVADA)
+        INSERT INTO OBRA
         VALUES
           (v_id_obra,
            I.CD_ECAD,
            I.CD_SOCIETARIO,
            I.TITULO_PRINCIPAL,
            I.IS_NACIONAL,
-           I.IS_DERIVADA);
+           I.IS_DERIVADA,
+           I.CD_AGRUPADOR,
+           I.SOC_RESP_INFO,
+           I.SOC_RESP_CAD_ORIG);
        
        ELSE
-         UPDATE DUPLICIDADE_OBRA
+         UPDATE OBRA
             SET CD_SOCIETARIO = I.CD_SOCIETARIO,
                 TITULO_PRINCIPAL = I.TITULO_PRINCIPAL,
                 IS_NACIONAL = I.IS_NACIONAL,
                 IS_DERIVADA = I.IS_DERIVADA
           WHERE CD_OBRA_ECAD = I.CD_ECAD;
        END IF;
-
     END LOOP;
     COMMIT;
  
@@ -317,8 +420,7 @@ create or replace package body CARREGAR_DUPLICIDADES is
        
         END IF;
     END LOOP;
-    COMMIT;
-     
+    COMMIT;     
   END;
 
 end CARREGAR_DUPLICIDADES;
