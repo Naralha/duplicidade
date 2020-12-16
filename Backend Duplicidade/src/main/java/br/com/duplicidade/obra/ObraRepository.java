@@ -1,26 +1,9 @@
 package br.com.duplicidade.obra;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import layer.dao.Dao;
-import layer.dao.EventStore;
-import layer.entity.Event;
-import layer.flush.EventIterator;
-import layer.flush.EventIteratorImpl;
+@RepositoryRestResource(collectionResourceRel = "obra", path = "obra")
+public interface ObraRepository extends JpaRepository<Obra, Long> {
 
-public class ObraDao extends Dao {
-
-	public void salvar(Obra obra){
-		this.factory.getCurrentSession().save(obra);
-	}
-	
-	public List<Obra> findAll(){
-
-		List<Obra> listaFuncionarios = new ArrayList<Obra>();
-		listaFuncionarios = Dao.factory.getCurrentSession().createQuery("SELECT a FROM Funcionario a", Obra.class).getResultList();
-		
-		return listaFuncionarios;
-	}
-	
 }

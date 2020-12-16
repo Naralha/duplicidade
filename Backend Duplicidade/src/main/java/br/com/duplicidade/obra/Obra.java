@@ -46,7 +46,7 @@ public class Obra extends Dao{
 		
 		iniciarOperacao();
 		
-		setId(sequence());
+		setCodigoObra(sequence());
 		session.save(this);
 		
 		finalizarOperacao();

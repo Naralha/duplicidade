@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import layer.dao.EventStoreDao;
 import layer.dao.FuncionarioDao;
-import layer.entity.Event;
 import layer.flush.EventIteratorImpl;
 import layer.teste.Obra;
+import old.layer.entity.Event;
 
 public class Main{
 	

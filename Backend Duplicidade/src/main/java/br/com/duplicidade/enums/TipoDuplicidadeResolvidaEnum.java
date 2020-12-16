@@ -1,4 +1,4 @@
-package layer.enums;
+package br.com.duplicidade.enums;
 
 public enum TipoDuplicidadeResolvidaEnum {
 

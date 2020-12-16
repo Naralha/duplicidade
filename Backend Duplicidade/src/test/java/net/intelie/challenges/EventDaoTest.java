@@ -5,8 +5,8 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import layer.dao.EventStoreDao;
-import layer.entity.Event;
 import layer.flush.EventIteratorImpl;
+import old.layer.entity.Event;
 
 public class EventDaoTest {
 	private Event e1 = new Event("sales", 123l);

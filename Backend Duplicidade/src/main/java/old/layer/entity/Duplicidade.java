@@ -1,4 +1,4 @@
-package layer.entity;
+package old.layer.entity;
 
 import java.util.Date;
 
@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import layer.enums.TipoDuplicidadeResolvidaEnum;
+import br.com.duplicidade.enums.TipoDuplicidadeResolvidaEnum;
 import lombok.Data;
 
 @Data

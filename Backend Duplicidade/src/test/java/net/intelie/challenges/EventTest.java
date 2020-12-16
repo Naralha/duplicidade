@@ -2,7 +2,7 @@ package net.intelie.challenges;
 
 import org.junit.Test;
 
-import layer.entity.Event;
+import old.layer.entity.Event;
 
 import static org.junit.Assert.assertEquals;
 

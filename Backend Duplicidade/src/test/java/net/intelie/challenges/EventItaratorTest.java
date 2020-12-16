@@ -4,9 +4,9 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import layer.entity.Event;
 import layer.flush.EventIteratorImpl;
 import layer.main.ThreadTest;
+import old.layer.entity.Event;
 
 public class EventItaratorTest {
 
