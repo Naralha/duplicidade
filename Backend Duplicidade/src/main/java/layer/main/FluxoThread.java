@@ -19,7 +19,7 @@ import org.hibernate.Transaction;
 
 import layer.dao.Dao;
 import layer.dao.FuncionarioDao;
-import layer.teste.Funcionario;
+import layer.teste.Obra;
 
 public class FluxoThread implements Runnable {
 
@@ -43,7 +43,7 @@ public class FluxoThread implements Runnable {
 		String arquivo = "C:/Users/vitor/Desktop/desafio/challenge-eventstore-master/"+nomeArquivo+".txt";
 //		String arquivo = "C:/DUP_ABRAMUS_20201119.txt";
 		FileInputStream fr;
-		List<Funcionario> listaFuncionario = new ArrayList<Funcionario>();
+		List<Obra> listaFuncionario = new ArrayList<Obra>();
 //		List<String> listaLinhas= new ArrayList<String>();
 		
 		try {
@@ -54,7 +54,7 @@ public class FluxoThread implements Runnable {
 			String[] textoArray;
 			
 			while(scanner.hasNextLine()) {
-				Funcionario fn = new Funcionario(); 
+				Obra fn = new Obra(); 
 				texto = scanner.nextLine();
 				 textoArray = texto.split(" ");
 				 fn.setNome(textoArray[0]);
@@ -72,7 +72,7 @@ public class FluxoThread implements Runnable {
 //			Session session = funcionarioDao.factory.getCurrentSession();
 			Transaction trans = session.beginTransaction();
 					
-			for(Funcionario f : listaFuncionario) {
+			for(Obra f : listaFuncionario) {
 //			System.out.println(f +":"+ nomeArquivo);
 //			funcionarioDao.salvar(f);
 			session.persist(f);

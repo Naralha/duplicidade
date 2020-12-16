@@ -6,7 +6,7 @@ import layer.dao.EventStoreDao;
 import layer.dao.FuncionarioDao;
 import layer.entity.Event;
 import layer.flush.EventIteratorImpl;
-import layer.teste.Funcionario;
+import layer.teste.Obra;
 
 public class Main{
 	
@@ -57,7 +57,7 @@ public class Main{
 		
 		
 		long inicio = System.currentTimeMillis();
-		Funcionario f = new Funcionario();
+		Obra f = new Obra();
 		f.dividirLinhas();
 		System.out.println(System.currentTimeMillis() - inicio);
 		

@@ -23,7 +23,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "tbFuncionario")
-public class Funcionario {
+public class Obra {
 	@Id @Column(name="id") @GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 	@Column(name = "nome", nullable = false)
@@ -52,10 +52,10 @@ public class Funcionario {
 		this.descricao = descricao;
 	}
 	
-	public List<Funcionario> cargaFuncionario() throws Exception{
+	public List<Obra> cargaFuncionario() throws Exception{
 		String arquivo = "C:/teste.txt";
 		FileInputStream fr;
-		List<Funcionario> listaFuncionario = new ArrayList<Funcionario>();
+		List<Obra> listaFuncionario = new ArrayList<Obra>();
 		
 		try {
 			fr = new FileInputStream(arquivo);
@@ -65,7 +65,7 @@ public class Funcionario {
 			String[] textoArray;
 			
 			while(scanner.hasNextLine()) {
-				Funcionario fn = new Funcionario(); 
+				Obra fn = new Obra(); 
 				texto = scanner.nextLine();
 				 textoArray = texto.split(" ");
 				 fn.nome = textoArray[0];
@@ -92,7 +92,7 @@ public class Funcionario {
 		BufferedOutputStream bw2 = new BufferedOutputStream(new FileOutputStream("split2.txt"));
 		BufferedOutputStream bw3 = new BufferedOutputStream(new FileOutputStream("split3.txt"));
 		BufferedOutputStream bw4 = new BufferedOutputStream(new FileOutputStream("split4.txt"));
-	    Funcionario f1 = new Funcionario();
+	    Obra f1 = new Obra();
 	    int destIx = 0;
 	    File file = new File("C:/teste.txt");
 	    if(file.exists()){
